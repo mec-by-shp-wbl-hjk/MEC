@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -10,13 +10,13 @@
 {% csrf_token %}
 <table>
 	<tr>
-		<td>아이디</td>
+		<td>ID</td>
 		<td><input id="{{form.username.id_for_label}}" maxlength="15"
 			name="{{form.username.html_name}}">
 		</td>
 	</tr>
 	<tr>
-		<td>비밀번호</td>
+		<td>PWD</td>
 		<td><input id="{{form.password.id_for_label}}" maxlength="120"
 			name="{{form.password.html_name}}" type="password">
 		</td>
