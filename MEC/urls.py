@@ -11,6 +11,9 @@ urlpatterns = [
     path('',views.list, name='list'),
     path('join/', views.join, name='join'),
     path('login/', views.login_check, name='login'),
+    
+    url(r'^oauth/',include('social_django.urls', namespace ='social')),
+    
     path('logout/',views.logout, name='logout'),
     path('write', views.write),
     path('insert', views.insert),
