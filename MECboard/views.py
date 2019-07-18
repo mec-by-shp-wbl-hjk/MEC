@@ -192,10 +192,12 @@ def delete(request):
 @csrf_exempt
 def reply_insert(request):
     id = request.POST["idx"]
+    username = request.POST["username"]
+    is_authenticated = request.POST["is_authenticated"]
     dto = Comment(board_idx=id, writer=request.POST["writer"],
                   content=request.POST["content"])
     dto.save()
-    return HttpResponseRedirect("detail?idx="+id)
+    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
 
 def join(request):
     if request.method == "POST":

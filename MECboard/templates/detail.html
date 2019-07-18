@@ -35,6 +35,13 @@ function del(){
 		alert("로그인이 필요합니다");
 
 }
+function reply_insert(){
+	if ("{{is_authenticated}}" == "True"){
+		document.form2.submit();
+    }
+	else
+		alert("로그인이 필요합니다");
+}
 </script>
 </head>
 <body>
@@ -81,14 +88,17 @@ function del(){
 </table>
 </form>
 
-<form method="post" action="reply_insert">
+<form method="post" name="form2" action="reply_insert">
 {% csrf_token %}
-<input type="text" name="writer" placeholder="이름"><br>
+{{username}}<input type="hidden" name="writer" value="{{username}}"><br>
 <textarea rows="5" cols="80" name="content"
 	placeholder="댓글을 작성하세요."></textarea><br>
 <input type="hidden" name="idx" value="{{dto.idx}}">
-<button>댓글쓰기</button>
+<input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
+<input type="hidden" name="username" value="{{username}}">
+<input type="button" value="댓글쓰기" onclick="reply_insert()">
 </form>
+
 <table border="1" width="700px">
 	{% for row in commentList %}
 	<tr>
