@@ -5,7 +5,7 @@ class BoardAdmin(admin.ModelAdmin):
     list_display = ("writer", "title", "content")
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("writer", "content")
+    list_display = ("writer", "content", "vote")
 
 admin.site.register(Board, BoardAdmin)
 admin.site.register(Comment, CommentAdmin)

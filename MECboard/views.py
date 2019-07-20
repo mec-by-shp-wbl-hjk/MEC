@@ -156,7 +156,8 @@ def detail(request):
     commentList=Comment.objects.filter(board_idx=id).order_by("-idx")
     
     return render_to_response("detail.html", 
-        {"dto":dto, "filesize":filesize, "commentList":commentList, "username":username, "is_authenticated":is_authenticated, "is_superuser":is_superuser})
+        {"dto":dto, "filesize":filesize, "commentList":commentList, "username":username,
+          "is_authenticated":is_authenticated, "is_superuser":is_superuser})
 
 @csrf_exempt    
 def update_page(request):
@@ -203,7 +204,7 @@ def reply_insert(request):
     username = request.POST["username"]
     is_authenticated = request.POST["is_authenticated"]
     dto = Comment(board_idx=id, writer=request.POST["writer"],
-                  content=request.POST["content"])
+                  content=request.POST["content"], vote=request.POST["vote"],)
     dto.save()
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
 

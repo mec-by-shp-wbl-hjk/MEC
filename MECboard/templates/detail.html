@@ -90,7 +90,9 @@ function reply_insert(){
 
 <form method="post" name="form2" action="reply_insert">
 {% csrf_token %}
-{{username}}<input type="hidden" name="writer" value="{{username}}"><br>
+{{username}}<input type="hidden" name="writer" value="{{username}}">
+<input type="radio" name="vote" value="1">찬
+<input type="radio" name="vote" value="2">반<br>
 <textarea rows="5" cols="80" name="content"
 	placeholder="댓글을 작성하세요."></textarea><br>
 <input type="hidden" name="idx" value="{{dto.idx}}">
@@ -101,11 +103,19 @@ function reply_insert(){
 
 <table border="1" width="700px">
 	{% for row in commentList %}
-	<tr>
-		<td>{{row.writer}} ( {{row.post_date}} )<br>
+	{% if row.vote == 1 %}
+	<tr align="left">
+		<td>{{row.writer}} ( {{row.post_date}} ) ( <span style="color:blue">찬성</span> )<br>
 			{{row.content}}
 		</td>
 	</tr>
+	{% else %}
+	<tr align="right">
+		<td>{{row.writer}} ( {{row.post_date}} ) ( <span style="color:red">반대</span> )<br>
+			{{row.content}}
+		</td>
+	</tr>
+	{% endif %}
 	{% endfor %}
 </table>
 </body>
