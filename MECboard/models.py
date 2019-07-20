@@ -26,7 +26,7 @@ class Comment(models.Model):
     writer = models.CharField(null=False, max_length=50)
     content = models.TextField(null=False)
     post_date = models.DateTimeField(default=datetime.now, blank=True)
-    
+    rating = models.IntegerField(default=None, null=True)
 
 class UserForm(forms.ModelForm):
     class Meta:

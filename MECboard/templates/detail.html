@@ -40,7 +40,7 @@ function reply_insert(){
 		document.form2.submit();
     }
 	else
-		alert("로그인이 필요합니다");
+		alert("로그인이 필 	요합니다");
 }
 </script>
 </head>
@@ -93,6 +93,7 @@ function reply_insert(){
 {{username}}<input type="hidden" name="writer" value="{{username}}"><br>
 <textarea rows="5" cols="80" name="content"
 	placeholder="댓글을 작성하세요."></textarea><br>
+찬<input type="checkbox" name="rating" value="1"> 반<input type="checkbox" name="rating" value="2"> <br>
 <input type="hidden" name="idx" value="{{dto.idx}}">
 <input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
 <input type="hidden" name="username" value="{{username}}">
@@ -101,11 +102,19 @@ function reply_insert(){
 
 <table border="1" width="700px">
 	{% for row in commentList %}
-	<tr>
-		<td>{{row.writer}} ( {{row.post_date}} )<br>
+	{% if {{row.rating}} == 1 %}
+	<tr align="left">
+		<td>{{row.writer}} ( {{row.post_date}} ) ( 찬성 )<br>
 			{{row.content}}
 		</td>
 	</tr>
+	{% else %}
+	<tr align="right">
+		<td>{{row.writer}} ( {{row.post_date}} ) ( 반대 )<br>
+			{{row.content}}
+		</td>
+	</tr>
+	{% endif %}
 	{% endfor %}
 </table>
 </body>

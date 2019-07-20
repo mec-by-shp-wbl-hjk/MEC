@@ -193,11 +193,12 @@ def delete(request):
 def reply_insert(request):
     id = request.POST["idx"]
     username = request.POST["username"]
+    rating = request.POST["rating"]
     is_authenticated = request.POST["is_authenticated"]
     dto = Comment(board_idx=id, writer=request.POST["writer"],
-                  content=request.POST["content"])
+                  content=request.POST["content"], rating=request.POST["rating"])
     dto.save()
-    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
+    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated+"&rating="+rating)
 
 def join(request):
     if request.method == "POST":
