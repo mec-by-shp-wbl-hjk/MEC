@@ -7,7 +7,7 @@
 function home(){
 	location.href="/";
 }
-function update(){
+function update_page(){
 	if ("{{is_authenticated}}" == "True"){
 		if ("{{username}}" == "{{dto.writer}}"){
 		document.form1.action="update_page";
@@ -81,7 +81,7 @@ function reply_insert(){
 		<td colspan="2" align="center">
 			<input type="hidden" name="idx" value="{{dto.idx}}">
 			<input type="button" value="목록" onclick="home()">
-			<input type="button" value="수정" onclick="update()">
+			<input type="button" value="수정" onclick="update_page()">
 			<input type="button" value="삭제" onclick="del()">
 		</td>
 	</tr>
