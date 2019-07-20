@@ -45,6 +45,8 @@ function del(){
 			<td colspan="2" align="center">
 				<input type="hidden" name="idx" value="{{dto.idx}}">
 				<input type="hidden" name="hit" value="{{dto.hit}}">
+				<input type="hidden" name="username" value="{{username}}">
+				<input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
 				<input type="button" value="목록" onclick="home()">
 				<input type="button" value="수정" onclick="update()">
 				<input type="button" value="삭제" onclick="del()">

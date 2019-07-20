@@ -98,7 +98,8 @@ def list(request):
 
 def write(request):
     username = request.user
-    return render_to_response("write.html", {"username":username})
+    is_authenticated = True
+    return render_to_response("write.html", {"username":username, "is_authenticated":is_authenticated})
 
 @csrf_exempt
 def insert(request):
@@ -121,7 +122,11 @@ def insert(request):
                 content = request.POST["content"],
                 filename = fname, filesize = fsize)
     dto.save()
-    return redirect("/")
+    id = str(dto.idx)
+    username = request.POST["username"]
+    is_authenticated = request.POST["is_authenticated"]
+    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
+
 
 def download(request):
     id = request.GET["idx"]
@@ -159,13 +164,15 @@ def update_page(request):
     dto = Board.objects.get(idx=id)
     filesize="%.2f" % (dto.filesize / 1024)
     username = request.user
-    return render_to_response("update_page.html", {"username":username, "dto":dto, "filesize":filesize})
+    is_authenticated = True
+    return render_to_response("update_page.html", {"username":username, "dto":dto, "filesize":filesize, "is_authenticated":is_authenticated})
 
 @csrf_exempt
 def update(request):
     id = request.POST["idx"]
     dto_src=Board.objects.get(idx=id)
-    
+    username = request.POST["username"]
+    is_authenticated = request.POST["is_authenticated"]
     fname = dto_src.filename
     fsize = dto_src.filesize
     if "file" in request.FILES:
@@ -181,7 +188,8 @@ def update(request):
         title=request.POST["title"], content=request.POST["content"],
         filename=fname, filesize=fsize, hit=request.POST["hit"])
     dto_new.save()
-    return redirect("/")
+    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
+
 
 @csrf_exempt
 def delete(request):
