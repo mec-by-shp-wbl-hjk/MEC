@@ -12,6 +12,11 @@ function write_identified(){
 		alert("로그인이 필요합니다.");
 }
 </script>
+<style>
+a:link {color:black; text-decoration:none;}
+a:visited {color:black; text-decoration:none;}
+a:hover {color: blue;}
+</style>
 </head>
 <body>
 <script>
@@ -19,7 +24,7 @@ if ("{{login_failed}}" == "True")
 	alert("로그인에 실패하였습니다.");
 	
 </script>
-<h2>게시판</h2>
+<h2><a href="/">게시판</a></h2>
 {% if is_authenticated %}
 	안녕하십니까 {{username}}님<br>
 	<a href="/logout">로그아웃</a>
