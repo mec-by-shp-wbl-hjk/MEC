@@ -20,4 +20,8 @@ urlpatterns = [
     path('delete', views.delete),
     path('reply_insert', views.reply_insert),
     path('update_page', views.update_page),
+    path('reply_rating', views.reply_rating),
+    path('reply_update', views.reply_update),
+    path('reply_delete', views.reply_delete),
+    path('reply_update_page', views.reply_update_page),
 ]

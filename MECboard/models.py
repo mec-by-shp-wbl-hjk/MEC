@@ -13,11 +13,18 @@ class Board(models.Model):
     filename = models.CharField(null=True, blank=True, default="", max_length=500)
     filesize = models.IntegerField(default=0)
     down = models.IntegerField(default=0)
-    
+    ratings_up = models.IntegerField(default=0)
+    ratings_down = models.IntegerField(default=0)
+    rating = models.IntegerField(default=0)
+                                      
     def hit_up(self):
         self.hit += 1
     def down_up(self):
         self.down += 1
+    def rate_up(self):
+        self.ratings_up += 1
+    def rate_down(self):
+        self.ratings_down += 1
         
         
 class Comment(models.Model):
@@ -27,7 +34,17 @@ class Comment(models.Model):
     content = models.TextField(null=False)
     post_date = models.DateTimeField(default=datetime.now, blank=True)
     vote = models.IntegerField(null=False)
+    ratings_up = models.IntegerField(default=0)
+    ratings_down = models.IntegerField(default=0)
+    rating = models.IntegerField(default=0)
+    filename = models.CharField(null=True, blank=True, default="", max_length=500)
+    filesize = models.IntegerField(default=0)
+    down = models.IntegerField(default=0)
     
+    def rate_up(self):
+        self.ratings_up += 1
+    def rate_down(self):
+        self.ratings_down += 1
 
 class UserForm(forms.ModelForm):
     class Meta:

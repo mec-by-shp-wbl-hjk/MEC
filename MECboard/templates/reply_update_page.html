@@ -8,14 +8,8 @@ function home(){
 	location.href="/";
 }
 function update(){
-	document.form1.action="update";
+	document.form1.action="reply_update";
 	document.form1.submit();
-}
-function del(){
-	if(confirm("삭제하시겠습니까?")){
-	document.form1.action="delete";
-	document.form1.submit();
-	}
 }
 </script>
 </head>
@@ -25,9 +19,6 @@ function del(){
 <table border="1" width="700px">
 	<tr>
 		<td>글쓴이 : </td><td>{{username}}<input type="hidden" name="writer" value="{{username}}"></td>
-	</tr>
-	<tr>
-		<td>제  목 : </td><td><input type="text" name="title" size="80" placeholder="제목을 입력하세요" value="{{dto.title}}"></td>
 	</tr>
 	<tr>
 		<td>내  용 : </td><td><textarea rows="20" cols="82" name="content">{{dto.content}}</textarea></td>
@@ -46,13 +37,14 @@ function del(){
 				<input type="hidden" name="rating" value="{{dto.rating}}">
 				<input type="hidden" name="ratings_up" value="{{dto.ratings_up}}">
 				<input type="hidden" name="ratings_down" value="{{dto.ratings_down}}">
-				<input type="hidden" name="idx" value="{{dto.idx}}">
+				<input type="hidden" name="cid" value="{{dto.idx}}">
+				<input type="hidden" name="idx" value="{{dto.board_idx}}">
 				<input type="hidden" name="hit" value="{{dto.hit}}">
+				<input type="hidden" name="vote" value="{{dto.vote}}">
 				<input type="hidden" name="username" value="{{username}}">
 				<input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
 				<input type="button" value="목록" onclick="home()">
 				<input type="button" value="수정" onclick="update()">
-				<input type="button" value="삭제" onclick="del()">
 			</td>
 		</tr>
 </table>
