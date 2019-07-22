@@ -71,6 +71,7 @@ if ("{{login_failed}}" == "True")
 		<th>제목</th>
 		<th>날짜</th>
 		<th>조회수</th>
+		<th>찬반</th>
 		<th>첨부파일</th>
 		<th>다운로드</th>
 	</tr>
@@ -81,6 +82,7 @@ if ("{{login_failed}}" == "True")
 		<td><div style="width:240px;">&nbsp;&nbsp;<a href="detail?idx={{row.idx}}&username={{username}}&is_authenticated={{is_authenticated}}">{{row.title}}</a></div></td>
 		<td>{{row.post_date}}</td>
 		<td>{{row.hit}}</td>
+		<td>{{row.rating}}</td>
 		<td>
 			{% if row.filesize > 0 %}
 			<a href="download?idx={{row.idx}}">

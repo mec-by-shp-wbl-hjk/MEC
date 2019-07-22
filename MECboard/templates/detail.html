@@ -35,12 +35,38 @@ function del(){
 		alert("로그인이 필요합니다");
 
 }
-function reply_insert(){
+function reply_rating(cid, idx, num){
 	if ("{{is_authenticated}}" == "True"){
-		document.form2.submit();
+		location.href="/reply_rating?idx="+String(idx)+"&cid="+String(cid)+"&username="+"{{username}}"+"&is_authenticated="+"{{is_authenticated}}"+"&rate="+String(num);
     }
 	else
 		alert("로그인이 필요합니다");
+}
+function reply_update_page(cid, idx){
+	if ("{{is_authenticated}}" == "True"){
+		if ("{{username}}" == "{{dto.writer}}"){
+			location.href="/reply_update_page?idx="+String(idx)+"&cid="+String(cid)+"&username="+"{{username}}"+"&is_authenticated="+"{{is_authenticated}}";
+		}
+		else
+			alert("글쓴이가 아닙니다");
+	}
+	else
+		alert("로그인이 필요합니다");
+
+}
+function reply_delete(cid, idx){
+	if ("{{is_authenticated}}" == "True"){
+		if ("{{is_superuser}}" == "True" || "{{username}}" == "{{dto.writer}}"){
+			if(confirm("삭제하시겠습니까?")){
+				location.href="/reply_delete?idx="+String(idx)+"&cid="+String(cid)+"&username="+"{{username}}"+"&is_authenticated="+"{{is_authenticated}}";
+				}
+		}
+		else
+			alert("글쓴이가 아닙니다");
+	}
+	else
+		alert("로그인이 필요합니다");
+
 }
 </script>
 </head>
@@ -63,6 +89,10 @@ function reply_insert(){
 	<tr>
 		<td>조회수</td>
 		<td>{{dto.hit}}</td>
+	</tr>
+	<tr>
+		<td>찬반</td>
+		<td>{{dto.rating}} (찬성 : {{dto.ratings_up}} 반대 : {{dto.ratings_down}})</td>
 	</tr>
 	<tr>
 		<td>내용</td>
@@ -88,35 +118,47 @@ function reply_insert(){
 </table>
 </form>
 
-<form method="post" name="form2" action="reply_insert">
+<form method="post" name="form2" action="reply_insert" id=form2 enctype="multipart/form-data">
 {% csrf_token %}
 {{username}}<input type="hidden" name="writer" value="{{username}}">
 <input type="radio" name="vote" value="1">찬
 <input type="radio" name="vote" value="2">반<br>
 <textarea rows="5" cols="80" name="content"
 	placeholder="댓글을 작성하세요."></textarea><br>
+첨부파일 <input type="file" name="file" accept="image/*">
 <input type="hidden" name="idx" value="{{dto.idx}}">
 <input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
 <input type="hidden" name="username" value="{{username}}">
-<input type="button" value="댓글쓰기" onclick="reply_insert()">
+<button type="submit" id="btnSave">댓글쓰기</button>
 </form>
 
+<form>
+{% csrf_token %}
 <table border="1" width="700px">
 	{% for row in commentList %}
 	{% if row.vote == 1 %}
 	<tr align="left">
-		<td>{{row.writer}} ( {{row.post_date}} ) ( <span style="color:blue">찬성</span> )<br>
+		<td>( <span style="color:blue">찬성</span> ) {{row.writer}} ( {{row.post_date}} ) <br>
+			{{row.ratings_up}}<input type="button" value="공감" onclick="reply_rating({{row.idx}}, {{dto.idx}}, 1)">
+			{{row.ratings_down}}<input type="button" value="비공감" onclick="reply_rating({{row.idx}}, {{dto.idx}}, 2)">
+			<input type="button" value="수정" onclick="reply_update_page({{row.idx}}, {{dto.idx}})">
+			<input type="button" value="삭제" onclick="reply_delete({{row.idx}}, {{dto.idx}})"><br>
 			{{row.content}}
 		</td>
 	</tr>
 	{% else %}
 	<tr align="right">
-		<td>{{row.writer}} ( {{row.post_date}} ) ( <span style="color:red">반대</span> )<br>
+		<td> ( {{row.post_date}} ) {{row.writer}} ( <span style="color:red">반대</span> )<br>
+			{{row.ratings_up}}<input type="button" value="공감" onclick="reply_rating({{row.idx}}, {{dto.idx}}, 1)">
+			{{row.ratings_down}}<input type="button" value="비공감" onclick="reply_rating({{row.idx}}, {{dto.idx}}, 2)">
+			<input type="button" value="수정" onclick="reply_update_page({{row.idx}}, {{dto.idx}})">
+			<input type="button" value="삭제" onclick="reply_delete({{row.idx}}, {{dto.idx}})"><br>
 			{{row.content}}
 		</td>
 	</tr>
 	{% endif %}
 	{% endfor %}
 </table>
+</form>
 </body>
 </html>

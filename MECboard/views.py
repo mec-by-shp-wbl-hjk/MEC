@@ -153,7 +153,7 @@ def detail(request):
     dto.save()
     filesize="%.2f" % (dto.filesize / 1024)
     
-    commentList=Comment.objects.filter(board_idx=id).order_by("-idx")
+    commentList=Comment.objects.filter(board_idx=id).order_by("idx")
     
     return render_to_response("detail.html", 
         {"dto":dto, "filesize":filesize, "commentList":commentList, "username":username,
@@ -187,7 +187,8 @@ def update(request):
         
     dto_new = Board(idx=id, writer=request.POST["writer"],
         title=request.POST["title"], content=request.POST["content"],
-        filename=fname, filesize=fsize, hit=request.POST["hit"])
+        filename=fname, filesize=fsize, hit=request.POST["hit"],
+        rating=request.POST["rating"], ratings_up=request.POST["ratings_up"], ratings_down=request.POST["ratings_down"])
     dto_new.save()
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
 
@@ -203,10 +204,98 @@ def reply_insert(request):
     id = request.POST["idx"]
     username = request.POST["username"]
     is_authenticated = request.POST["is_authenticated"]
+    vote=request.POST["vote"]
+    dto_board = Board.objects.get(idx=id)
+    fname=""
+    fsize=0
+    if "file" in request.FILES:
+        file = request.FILES["file"]
+        print(file)
+        fname = file._name
+        
+        print(UPLOAD_DIR+fname)
+        with open("%s%s" % (UPLOAD_DIR, fname), "wb") as fp:
+            for chunk in file.chunks():
+                fp.write(chunk)
+            
+        fsize = os.path.getsize(UPLOAD_DIR+fname)
     dto = Comment(board_idx=id, writer=request.POST["writer"],
-                  content=request.POST["content"], vote=request.POST["vote"],)
+                  content=request.POST["content"], vote=request.POST["vote"],filename = fname, filesize = fsize)
     dto.save()
+    if vote == '1':
+        dto_board.rate_up()
+    else:
+        dto_board.rate_down()
+    dto_board.rating = dto_board.ratings_up - dto_board.ratings_down
+    dto_board.save()
+    
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
+
+@csrf_exempt
+def reply_rating(request):
+    cid = request.GET["cid"]
+    id = request.GET["idx"]
+    username = request.GET["username"]
+    is_authenticated = request.GET["is_authenticated"]
+    rate = request.GET["rate"]
+    cdto = Comment.objects.get(idx=cid)
+    if rate == '1':
+        cdto.rate_up()
+    else:
+        cdto.rate_down()
+    cdto.save()
+    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
+
+@csrf_exempt
+def reply_update(request):
+    cid = request.POST["cid"]
+    id = request.POST["idx"]
+    username = request.POST["username"]
+    is_authenticated = request.POST["is_authenticated"]
+    dto_src=Comment.objects.get(idx=cid)
+    fname = dto_src.filename
+    fsize = dto_src.filesize
+    if "file" in request.FILES:
+        file = request.FILES["file"]
+        fname = file._name
+        fp = open("%s%s" % (UPLOAD_DIR, fname), "wb")
+        for chunk in file.chunks():
+            fp.write(chunk)
+        fp.close()
+        fsize = os.path.getsize(UPLOAD_DIR+fname)
+    dto_new = Comment(idx=cid, board_idx=id, writer=request.POST["writer"], content=request.POST["content"],
+        rating=request.POST["rating"], ratings_up=request.POST["ratings_up"], ratings_down=request.POST["ratings_down"],
+        filename=fname, filesize=fsize, vote=request.POST["vote"],)
+    dto_new.save()
+    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
+
+@csrf_exempt
+def reply_delete(request):
+    cid = request.GET["cid"]
+    id = request.GET["idx"]
+    username = request.GET["username"]
+    is_authenticated = request.GET["is_authenticated"]
+    dto = Board.objects.get(idx=id)
+    cdto = Comment.objects.get(idx=cid)
+    if cdto.vote == 1:
+        dto.ratings_up -= 1
+        dto.rating -= 1
+    else:
+        dto.ratings_down -= 1
+        dto.rating += 1
+    dto.save()
+    cdto.delete()
+    return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
+
+@csrf_exempt    
+def reply_update_page(request):
+    id = request.GET['cid']
+    dto = Comment.objects.get(idx=id)
+    username = request.GET["username"]
+    is_authenticated = request.GET["is_authenticated"]
+    filesize="%.2f" % (dto.filesize / 1024)
+
+    return render_to_response("reply_update_page.html", {"username":username, "dto":dto, "filesize":filesize, "is_authenticated":is_authenticated})
 
 def join(request):
     if request.method == "POST":
