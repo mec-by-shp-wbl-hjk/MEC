@@ -68,6 +68,19 @@ function reply_delete(cid, idx){
 		alert("로그인이 필요합니다");
 
 }
+function reply_insert(){
+	if (document.form2.vote.value==""){
+		alert("찬반을 정하세요.");
+		document.form2.vote.focus();
+		return;
+	}
+	if (document.form2.content.value==""){
+		alert("내용을 입력하세요.");
+		document.form2.content.focus();
+		return;
+	}
+	document.form2.submit();
+}
 </script>
 </head>
 <body>
@@ -129,7 +142,7 @@ function reply_delete(cid, idx){
 <input type="hidden" name="idx" value="{{dto.idx}}">
 <input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
 <input type="hidden" name="username" value="{{username}}">
-<button type="submit" id="btnSave">댓글쓰기</button>
+<button type="button" onclick="reply_insert()" id="btnSave">댓글쓰기</button>
 </form>
 
 <form>

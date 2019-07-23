@@ -3,10 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <title>Gesipan Join</title>
+<script>
+function check(){
+	if (document.form1.username.value==""){
+		alert("아이디를 입력하세요.");
+		document.form1.username.focus();
+		return;
+	}
+	if (document.form1.password.value==""){
+		alert("비밀번호를 입력하세요.");
+		document.form1.password.focus();
+		return;
+	}
+	document.form1.submit();
+}
+</script>
 </head>
 <body>
 <h2>회원가입</h2>
-<form method="post">
+<form method="post" name="form1">
 {% csrf_token %}
 <table>
 	<tr>
@@ -23,7 +38,7 @@
 	</tr>
 	<tr>
 		<td colspan="2" align="center">
-			<input type="submit" value="회원가입">
+			<input type="button" onclick="check()" value="회원가입">
 			<input type="button" value="취소" onclick="location.href='/';">
 		</td>
 	</tr>

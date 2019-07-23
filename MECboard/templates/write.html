@@ -7,6 +7,19 @@
 function home(){
 	location.href="/";
 }
+function write(){
+	if (document.form1.title.value==""){
+		alert("제목를 입력하세요.");
+		document.form1.title.focus();
+		return;
+	}
+	if (document.form1.content.value==""){
+		alert("내용을 입력하세요.");
+		document.form1.content.focus();
+		return;
+	}
+	document.form1.submit();
+}
 </script>
 </head>
 <body>
@@ -31,7 +44,7 @@ function home(){
 		<td colspan="2" align="center">
 			<input type="hidden" name="username" value="{{username}}">
 			<input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
-			<button type="submit" id="btnSave">글쓰기</button>
+			<button type="button" onclick="write()" id="btnSave">글쓰기</button>
 			<input type="button" value="목록" onclick="home()">
 		</td>
 	</tr>

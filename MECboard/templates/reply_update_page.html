@@ -8,6 +8,11 @@ function home(){
 	location.href="/";
 }
 function update(){
+	if (document.form1.content.value==""){
+		alert("내용을 입력하세요.");
+		document.form1.content.focus();
+		return;
+	}
 	document.form1.action="reply_update";
 	document.form1.submit();
 }
@@ -21,7 +26,7 @@ function update(){
 		<td>글쓴이 : </td><td>{{username}}<input type="hidden" name="writer" value="{{username}}"></td>
 	</tr>
 	<tr>
-		<td>내  용 : </td><td><textarea rows="20" cols="82" name="content">{{dto.content}}</textarea></td>
+		<td>내  용 : </td><td><textarea rows="20" cols="82" name="content" placeholder="내용을 입력하세요">{{dto.content}}</textarea></td>
 	</tr>
 	<tr>
 		<td>첨부파일</td>
