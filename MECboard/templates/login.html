@@ -20,6 +20,12 @@ function check(){
 </script>
 </head>
 <body>
+<script>
+if ("{{msg}}" == "no error");
+else
+	alert("Login Error");
+
+</script>
 <h2>로그인</h2>
 <form method="post" name="form1" action="{% url 'login' %}">
 {% csrf_token %}
