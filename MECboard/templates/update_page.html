@@ -7,15 +7,25 @@
 function home(){
 	location.href="/";
 }
-function update(){
-	document.form1.action="update";
-	document.form1.submit();
-}
 function del(){
 	if(confirm("삭제하시겠습니까?")){
 	document.form1.action="delete";
 	document.form1.submit();
 	}
+}
+function update(){
+	if (document.form1.title.value==""){
+		alert("제목를 입력하세요.");
+		document.form1.title.focus();
+		return;
+	}
+	if (document.form1.content.value==""){
+		alert("내용을 입력하세요.");
+		document.form1.content.focus();
+		return;
+	}
+	document.form1.action="update";
+	document.form1.submit();
 }
 </script>
 </head>
@@ -30,7 +40,7 @@ function del(){
 		<td>제  목 : </td><td><input type="text" name="title" size="80" placeholder="제목을 입력하세요" value="{{dto.title}}"></td>
 	</tr>
 	<tr>
-		<td>내  용 : </td><td><textarea rows="20" cols="82" name="content">{{dto.content}}</textarea></td>
+		<td>내  용 : </td><td><textarea rows="20" cols="82" name="content" placeholder="내용을 입력하세요">{{dto.content}}</textarea></td>
 	</tr>
 	<tr>
 		<td>첨부파일</td>
