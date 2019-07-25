@@ -135,7 +135,8 @@ def download(request):
         dto.down_up()
         dto.save()
     return response
-    
+  
+@csrf_exempt        
 def detail(request):
     id = request.GET["idx"]
     username = request.GET["username"]
@@ -146,11 +147,18 @@ def detail(request):
     dto.save()
     filesize="%.2f" % (dto.filesize / 1024)
     
-    commentList=Comment.objects.filter(board_idx=id).order_by("idx")
-    
+    try:
+        search_option=request.POST["array_option"]
+    except:
+        search_option="written"
+    if search_option=="written":
+        commentList=Comment.objects.filter(board_idx=id).order_by("idx")
+    elif search_option=="rating":
+        commentList=Comment.objects.filter(board_idx=id).order_by("-rating")
+        
     return render_to_response("detail.html", 
         {"dto":dto, "filesize":filesize, "commentList":commentList, "username":username,
-          "is_authenticated":is_authenticated, "is_superuser":is_superuser})
+          "is_authenticated":is_authenticated, "is_superuser":is_superuser, "search_option":search_option})
 
 @csrf_exempt    
 def update_page(request):
@@ -236,6 +244,7 @@ def reply_rating(request):
         cdto.rate_up()
     else:
         cdto.rate_down()
+    cdto.rating = cdto.ratings_up - cdto.ratings_down
     cdto.save()
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
 
