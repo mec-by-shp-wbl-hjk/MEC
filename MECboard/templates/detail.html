@@ -125,7 +125,7 @@ function reply_delete(cid, idx){
 <input type="radio" name="vote" value="2">반<br>
 <textarea rows="5" cols="80" name="content"
 	placeholder="댓글을 작성하세요."></textarea><br>
-첨부파일 <input type="file" name="file" accept="image/*">
+첨부사진 <input type="file" name="file" accept="image/*">
 <input type="hidden" name="idx" value="{{dto.idx}}">
 <input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
 <input type="hidden" name="username" value="{{username}}">
@@ -143,8 +143,11 @@ function reply_delete(cid, idx){
 			{{row.ratings_down}}<input type="button" value="비공감" onclick="reply_rating({{row.idx}}, {{dto.idx}}, 2)">
 			<input type="button" value="수정" onclick="reply_update_page({{row.idx}}, {{dto.idx}})">
 			<input type="button" value="삭제" onclick="reply_delete({{row.idx}}, {{dto.idx}})"><br>
-			{{row.content}}
-		</td>
+			{{row.content}}<br>
+			{% if row.filename %}
+			<img src="{{row.image.url}}" alt="그림없음", width="100", height="100">
+			{% endif %}
+ 		</td>
 	</tr>
 	{% else %}
 	<tr align="right">
@@ -153,7 +156,10 @@ function reply_delete(cid, idx){
 			{{row.ratings_down}}<input type="button" value="비공감" onclick="reply_rating({{row.idx}}, {{dto.idx}}, 2)">
 			<input type="button" value="수정" onclick="reply_update_page({{row.idx}}, {{dto.idx}})">
 			<input type="button" value="삭제" onclick="reply_delete({{row.idx}}, {{dto.idx}})"><br>
-			{{row.content}}
+			{{row.content}}<br>
+			{% if row.filename %}
+			<img src="{{row.image.url}}" alt="그림없음", width="100", height="100">
+			{% endif %}
 		</td>
 	</tr>
 	{% endif %}

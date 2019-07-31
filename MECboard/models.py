@@ -2,6 +2,8 @@ from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
 from django import forms
+from imagekit.models import ImageSpecField
+from imagekit.processors import Thumbnail
 
 class Board(models.Model):
     idx = models.AutoField(primary_key=True)
@@ -40,7 +42,8 @@ class Comment(models.Model):
     filename = models.CharField(null=True, blank=True, default="", max_length=500)
     filesize = models.IntegerField(default=0)
     down = models.IntegerField(default=0)
-    
+    image = models.ImageField(default="media/default.jpg", upload_to="media/images")
+
     def rate_up(self):
         self.ratings_up += 1
     def rate_down(self):
