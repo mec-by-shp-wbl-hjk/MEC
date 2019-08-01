@@ -10,7 +10,8 @@ from MECboard.forms import UserForm, LoginForm
 from django.contrib.auth.models import User
 from django.contrib.auth import (authenticate, login as django_login, logout as django_logout, )
 
-UPLOAD_DIR = "d:/upload/"
+UPLOAD_DIR = "media/images/"
+login_failure = False
 
 @csrf_exempt
 def list(request):
@@ -98,11 +99,11 @@ def write(request):
 def insert(request):
     fname=""
     fsize=0
+
     if "file" in request.FILES:
         file = request.FILES["file"]
         print(file)
         fname = file._name
-        
         print(UPLOAD_DIR+fname)
         with open("%s%s" % (UPLOAD_DIR, fname), "wb") as fp:
             for chunk in file.chunks():
@@ -215,13 +216,13 @@ def reply_insert(request):
         fname = file._name
         
         print(UPLOAD_DIR+fname)
-        with open("%s%s" % (UPLOAD_DIR, fname), "wb") as fp:
+        with open("%s%s" % (UPLOAD_DIR,fname), "wb") as fp:
             for chunk in file.chunks():
                 fp.write(chunk)
             
         fsize = os.path.getsize(UPLOAD_DIR+fname)
     dto = Comment(board_idx=id, writer=request.POST["writer"],
-                  content=request.POST["content"], vote=request.POST["vote"],filename = fname, filesize = fsize)
+                  content=request.POST["content"], vote=request.POST["vote"],filename = fname, filesize = fsize, image=request.FILES["file"])
     dto.save()
     if vote == '1':
         dto_board.rate_up()
@@ -311,7 +312,7 @@ def join(request):
                                       {"msg":"failed to sign up..."})
     else:
         form = UserForm()
-        return render(request, "join.html", {"form":form})
+    return render(request, "join.html", {"form":form})
 
 def logout(request):
     django_logout(request)
@@ -330,4 +331,4 @@ def login_check(request):
             return render(request, "login.html", {"form":form, "msg":"failed to login..."})
     else:
         form = LoginForm()
-        return render(request, "login.html", {"form":form, "msg":"no error"})
+    return render(request, "login.html", {"form":form, "msg":"no error"})

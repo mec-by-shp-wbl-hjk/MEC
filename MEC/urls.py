@@ -4,6 +4,8 @@ from django.conf.urls import url
 from django.conf import settings
 from django.urls import include
 from MECboard import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +26,5 @@ urlpatterns = [
     path('reply_update', views.reply_update),
     path('reply_delete', views.reply_delete),
     path('reply_update_page', views.reply_update_page),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
