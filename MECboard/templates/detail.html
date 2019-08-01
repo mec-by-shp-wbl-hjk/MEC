@@ -68,6 +68,19 @@ function reply_delete(cid, idx){
 		alert("로그인이 필요합니다");
 
 }
+function reply_insert(){
+	if (document.form2.vote.value==""){
+		alert("찬반을 정하세요.");
+		document.form2.vote.focus();
+		return;
+	}
+	if (document.form2.content.value==""){
+		alert("내용을 입력하세요.");
+		document.form2.content.focus();
+		return;
+	}
+	document.form2.submit();
+}
 </script>
 </head>
 <body>
@@ -126,15 +139,31 @@ function reply_delete(cid, idx){
 <textarea rows="5" cols="80" name="content"
 	placeholder="댓글을 작성하세요."></textarea><br>
 첨부사진 <input type="file" name="file" accept="image/*">
+<button type="button" onclick="reply_insert()" id="btnSave">댓글쓰기</button>
 <input type="hidden" name="idx" value="{{dto.idx}}">
 <input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
 <input type="hidden" name="username" value="{{username}}">
-<button type="submit" id="btnSave">댓글쓰기</button>
 </form>
-
-<form>
+<br>
 {% csrf_token %}
 <table border="1" width="700px">
+	<tr align="right"><td>
+		<form method="post">
+		{% csrf_token %}
+		<select name="array_option">
+		{% if search_option == "written" %}
+			<option value="written" selected>등록순</option>
+			<option value="rating">공감순</option>
+		{% elif search_option == "rating" %}
+			<option value="written">등록순</option>
+			<option value="rating" selected>공감순</option>
+		{% endif %}
+		</select>
+		<input type="submit" value="정렬">
+		</form>
+		</td>
+	</tr>
+<form>
 	{% for row in commentList %}
 	{% if row.vote == 1 %}
 	<tr align="left">

@@ -10,7 +10,7 @@ from MECboard.forms import UserForm, LoginForm
 from django.contrib.auth.models import User
 from django.contrib.auth import (authenticate, login as django_login, logout as django_logout, )
 
-UPLOAD_DIR = "/Users/sehwa/PycharmProjects/mec/MECboard/media/images/"
+UPLOAD_DIR = "media/images/"
 login_failure = False
 
 @csrf_exempt
@@ -80,12 +80,6 @@ def list(request):
     else:
         username = request.user.username
         is_authenticated = request.user.is_authenticated
-    global login_failure
-    if login_failure == True:
-        login_failure = False
-        login_failed = True
-    else:
-        login_failed = False
     
     return render_to_response("list.html", 
                     {"boardList":boardList, "boardCount":boardCount,
@@ -94,7 +88,7 @@ def list(request):
                      "start_page":start_page, "end_page":end_page,
                      "page_list_size":page_list_size, "total_page":total_page,
                      "prev_list":prev_list, "next_list":next_list,
-                     "links":links, "username":username, "is_authenticated":is_authenticated, "login_failed":login_failed})
+                     "links":links, "username":username, "is_authenticated":is_authenticated, })
 
 def write(request):
     username = request.user
@@ -142,7 +136,8 @@ def download(request):
         dto.down_up()
         dto.save()
     return response
-    
+  
+@csrf_exempt        
 def detail(request):
     id = request.GET["idx"]
     username = request.GET["username"]
@@ -153,11 +148,18 @@ def detail(request):
     dto.save()
     filesize="%.2f" % (dto.filesize / 1024)
     
-    commentList=Comment.objects.filter(board_idx=id).order_by("idx")
-    
+    try:
+        search_option=request.POST["array_option"]
+    except:
+        search_option="written"
+    if search_option=="written":
+        commentList=Comment.objects.filter(board_idx=id).order_by("idx")
+    elif search_option=="rating":
+        commentList=Comment.objects.filter(board_idx=id).order_by("-rating")
+        
     return render_to_response("detail.html", 
         {"dto":dto, "filesize":filesize, "commentList":commentList, "username":username,
-          "is_authenticated":is_authenticated, "is_superuser":is_superuser})
+          "is_authenticated":is_authenticated, "is_superuser":is_superuser, "search_option":search_option})
 
 @csrf_exempt    
 def update_page(request):
@@ -243,6 +245,7 @@ def reply_rating(request):
         cdto.rate_up()
     else:
         cdto.rate_down()
+    cdto.rating = cdto.ratings_up - cdto.ratings_down
     cdto.save()
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
 
@@ -309,7 +312,7 @@ def join(request):
                                       {"msg":"failed to sign up..."})
     else:
         form = UserForm()
-        return render(request, "join.html", {"form":form})
+    return render(request, "join.html", {"form":form})
 
 def logout(request):
     django_logout(request)
@@ -325,10 +328,7 @@ def login_check(request):
             django_login(request, user)
             return redirect("/")
         else:
-            global login_failure
-            login_failure = True
-            return redirect("/")
+            return render(request, "login.html", {"form":form, "msg":"failed to login..."})
     else:
         form = LoginForm()
-        return render(request, "login.html", {"form":form})
-
+    return render(request, "login.html", {"form":form, "msg":"no error"})
