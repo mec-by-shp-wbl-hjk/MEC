@@ -27,5 +27,6 @@ urlpatterns = [
     path('reply_update', views.reply_update),
     path('reply_delete', views.reply_delete),
     path('reply_update_page', views.reply_update_page),
+    path('evidence_insert', views.evidence_insert),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
