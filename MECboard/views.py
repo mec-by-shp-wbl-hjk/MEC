@@ -10,7 +10,7 @@ from MECboard.forms import UserForm, LoginForm
 from django.contrib.auth.models import User
 from django.contrib.auth import (authenticate, login as django_login, logout as django_logout, )
 
-UPLOAD_DIR = "media/images/"
+UPLOAD_DIR = "C:/Users/sehwa/PycharmProjects/mec/MECboard/media/images"
 login_failure = False
 
 @csrf_exempt
@@ -110,11 +110,22 @@ def insert(request):
                 fp.write(chunk)
             
         fsize = os.path.getsize(UPLOAD_DIR+fname)
-        
+
+    if "file" in request.FILES:
+        file = request.FILES["file"]
+        print(file)
+        fname = file._name
+        print(UPLOAD_DIR + fname)
+        with open("%s%s" % (UPLOAD_DIR, fname), "wb") as fp:
+            for chunk in file.chunks():
+                fp.write(chunk)
+
+        fsize = os.path.getsize(UPLOAD_DIR + fname)
     dto = Board(writer = request.POST["writer"],
                 title = request.POST["title"],
                 content = request.POST["content"],
-                filename = fname, filesize = fsize)
+                filename = fname, filesize = fsize,
+                image_thumbnail=request.FILES["thumbnail"])
     dto.save()
     id = str(dto.idx)
     username = request.POST["username"]
@@ -216,15 +227,18 @@ def reply_insert(request):
         fname = file._name
         
         print(UPLOAD_DIR+fname)
-        with open("%s%s" % (UPLOAD_DIR,fname), "wb") as fp:
+        with open("%s%s" %(UPLOAD_DIR,fname), "wb") as fp:
             for chunk in file.chunks():
                 fp.write(chunk)
             
         fsize = os.path.getsize(UPLOAD_DIR+fname)
-    dto = Comment(board_idx=id, writer=request.POST["writer"],
-                  content=request.POST["content"], vote=request.POST["vote"],filename = fname, filesize = fsize, image=request.FILES["file"])
+        dto = Comment(board_idx=id, writer=request.POST["writer"],
+                    content=request.POST["content"], vote=request.POST["vote"],filename = fname, filesize = fsize, image=request.FILES["file"], evidence=request.POST["evidence"])
+    else:
+        dto = Comment(board_idx=id, writer=request.POST["writer"],
+                      content=request.POST["content"], vote=request.POST["vote"], filename=fname, filesize=fsize, evidence=request.POST["evidence"])
     dto.save()
-    if vote == '1':
+    if vote == '1' or vote == '2':
         dto_board.rate_up()
     else:
         dto_board.rate_down()
@@ -299,6 +313,31 @@ def reply_update_page(request):
     filesize="%.2f" % (dto.filesize / 1024)
 
     return render_to_response("reply_update_page.html", {"username":username, "dto":dto, "filesize":filesize, "is_authenticated":is_authenticated})
+@csrf_exempt
+def evidence_insert(request):
+    id = request.GET["idx"]
+    username = request.GET["username"]
+    is_authenticated = request.GET["is_authenticated"]
+    is_superuser = request.user.is_superuser
+    dto = Board.objects.get(idx=id)
+    dto.hit_up()
+    dto.save()
+    filesize = "%.2f" % (dto.filesize / 1024)
+
+    try:
+        search_option = request.POST["array_option"]
+    except:
+        search_option = "written"
+    if search_option == "written":
+        commentList = Comment.objects.filter(board_idx=id).order_by("idx")
+    elif search_option == "rating":
+        commentList = Comment.objects.filter(board_idx=id).order_by("-rating")
+
+    return render_to_response("evidence_insert.html",
+                              {"dto": dto, "filesize": filesize, "commentList": commentList, "username": username,
+                               "is_authenticated": is_authenticated, "is_superuser": is_superuser,
+                               "search_option": search_option})
+
 
 def join(request):
     if request.method == "POST":
