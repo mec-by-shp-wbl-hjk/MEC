@@ -2,7 +2,8 @@ from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
 from django import forms
-from imagekit.models import ProcessedImageField
+from MEC import settings
+from imagekit.models import ImageSpecField
 from imagekit.processors import Thumbnail
 
 class Board(models.Model):
@@ -60,3 +61,8 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["username", "email", "password"]
+
+class Profile(models.Model):
+    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,)
+    nickname = models.CharField(max_length=64)
+    profile_photo = models.ImageField(blank=True)
