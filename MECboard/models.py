@@ -2,7 +2,7 @@ from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
 from django import forms
-from imagekit.models import ImageSpecField
+from imagekit.models import ProcessedImageField
 from imagekit.processors import Thumbnail
 
 class Board(models.Model):
@@ -18,7 +18,12 @@ class Board(models.Model):
     ratings_up = models.IntegerField(default=0)
     ratings_down = models.IntegerField(default=0)
     rating = models.IntegerField(default=0)
-                                      
+    image_thumbnail = ProcessedImageField(
+            upload_to='media/thumbnail',
+            processors=[Thumbnail(100, 100)],
+            format='JPEG',
+            options={'quality': 60},
+            null=True)
     def hit_up(self):
         self.hit += 1
     def down_up(self):
@@ -42,12 +47,14 @@ class Comment(models.Model):
     filename = models.CharField(null=True, blank=True, default="", max_length=500)
     filesize = models.IntegerField(default=0)
     down = models.IntegerField(default=0)
+    evidence = models.BooleanField(default=False, null=False)
     image = models.ImageField(default="media/default.jpg", upload_to="media/images")
 
     def rate_up(self):
         self.ratings_up += 1
     def rate_down(self):
         self.ratings_down += 1
+
 
 class UserForm(forms.ModelForm):
     class Meta:
