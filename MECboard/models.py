@@ -3,9 +3,8 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django import forms
 from MEC import settings
-from imagekit.models import ImageSpecField
+from imagekit.models import ImageSpecField,ProcessedImageField
 from imagekit.processors import Thumbnail
-
 class Board(models.Model):
     idx = models.AutoField(primary_key=True)
     writer = models.CharField(null=False, max_length=50)
@@ -33,9 +32,17 @@ class Board(models.Model):
         self.ratings_up += 1
     def rate_down(self):
         self.ratings_down += 1
-        
+
+class Profile(models.Model):
+    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,)
+    nickname = models.CharField(max_length=64)
+    profile_photo = models.ImageField(blank=True, default="media/default.jpg")
+    name = models.CharField(max_length=6,default="")
+    user_commentlist = models.ManyToManyField('Comment', blank=True, related_name='user_commentlist')
+    user_likelist = models.ManyToManyField('Comment', blank=True, related_name='user_likelist')
         
 class Comment(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     idx = models.AutoField(primary_key=True)
     board_idx = models.IntegerField(null=False)
     writer = models.CharField(null=False, max_length=50)
@@ -50,11 +57,14 @@ class Comment(models.Model):
     down = models.IntegerField(default=0)
     evidence = models.BooleanField(default=False, null=False)
     image = models.ImageField(default="media/default.jpg", upload_to="media/images")
-
     def rate_up(self):
         self.ratings_up += 1
     def rate_down(self):
         self.ratings_down += 1
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
 
 
 class UserForm(forms.ModelForm):
@@ -62,7 +72,3 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ["username", "email", "password"]
 
-class Profile(models.Model):
-    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,)
-    nickname = models.CharField(max_length=64)
-    profile_photo = models.ImageField(blank=True)

@@ -7,7 +7,7 @@
 function home(){
 	location.href="/";
 }
-function write(){
+function write1(){
 	if (document.form1.title.value==""){
 		alert("제목를 입력하세요.");
 		document.form1.title.focus();
@@ -24,8 +24,7 @@ function write(){
 </head>
 <body>
 <h2>글쓰기</h2>
-<form id="form1" name="form1" method="post"
- action="insert" enctype="multipart/form-data">
+<form id=form1 name="form1" method="post" action="insert" enctype="multipart/form-data">
 {% csrf_token %}
 <table border="1" width="700px">
 	<tr>
@@ -47,7 +46,7 @@ function write(){
 		<td colspan="2" align="center">
 			<input type="hidden" name="username" value="{{username}}">
 			<input type="hidden" name="is_authenticated" value="{{is_authenticated}}">
-			<button type="button" onclick="write()" id="btnSave">글쓰기</button>
+            <button type="button" onclick="write1()" id="btnSave">글 쓰기</button>
 			<input type="button" value="목록" onclick="home()">
 		</td>
 	</tr>
