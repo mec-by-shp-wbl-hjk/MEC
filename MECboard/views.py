@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect, render_to_response
-from MECboard.models import Board, Comment
+from django.shortcuts import render, redirect, render_to_response, get_object_or_404
+from MECboard.models import Board, Comment, Profile
 import os
 import math
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.http import urlquote
 from django.http import HttpResponse, HttpResponseRedirect
@@ -10,7 +11,7 @@ from MECboard.forms import UserForm, LoginForm
 from django.contrib.auth.models import User
 from django.contrib.auth import (authenticate, login as django_login, logout as django_logout, )
 
-UPLOAD_DIR = "C:/Users/sehwa/PycharmProjects/mec/MECboard/media/images"
+UPLOAD_DIR = "C:/Users/sehwa/PycharmProjects/MEC/MECboard/media/images"
 login_failure = False
 
 @csrf_exempt
@@ -111,23 +112,30 @@ def insert(request):
             
         fsize = os.path.getsize(UPLOAD_DIR+fname)
 
-    if "file" in request.FILES:
-        file = request.FILES["file"]
+    if "thumbnail" in request.FILES:
+        file = request.FILES["thumbnail"]
         print(file)
-        fname = file._name
-        print(UPLOAD_DIR + fname)
-        with open("%s%s" % (UPLOAD_DIR, fname), "wb") as fp:
+        thumbnail_name = file._name
+        print(UPLOAD_DIR + thumbnail_name)
+        with open("%s%s" % (UPLOAD_DIR, thumbnail_name), "wb") as fp:
             for chunk in file.chunks():
                 fp.write(chunk)
 
-        fsize = os.path.getsize(UPLOAD_DIR + fname)
-    dto = Board(writer = request.POST["writer"],
-                title = request.POST["title"],
-                content = request.POST["content"],
-                filename = fname, filesize = fsize,
-                image_thumbnail=request.FILES["thumbnail"])
-    dto.save()
+        dto = Board(writer=request.POST["writer"],
+                    title=request.POST["title"],
+                    content=request.POST["content"],
+                    filename=fname, filesize=fsize,
+                    image_thumbnail=request.FILES["thumbnail"])
+        dto.save()
+    else:
+        dto = Board(writer=request.POST["writer"],
+                    title=request.POST["title"],
+                    content=request.POST["content"],
+                    filename=fname, filesize=fsize)
+        dto.save()
+
     id = str(dto.idx)
+
     username = request.POST["username"]
     is_authenticated = request.POST["is_authenticated"]
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
@@ -221,6 +229,7 @@ def reply_insert(request):
     dto_board = Board.objects.get(idx=id)
     fname=""
     fsize=0
+
     if "file" in request.FILES:
         file = request.FILES["file"]
         print(file)
@@ -244,23 +253,40 @@ def reply_insert(request):
         dto_board.rate_down()
     dto_board.rating = dto_board.ratings_up - dto_board.ratings_down
     dto_board.save()
-    
+
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
 
 @csrf_exempt
+@login_required
 def reply_rating(request):
     cid = request.GET["cid"]
     id = request.GET["idx"]
     username = request.GET["username"]
     is_authenticated = request.GET["is_authenticated"]
-    rate = request.GET["rate"]
     cdto = Comment.objects.get(idx=cid)
-    if rate == '1':
-        cdto.rate_up()
+
+    post = get_object_or_404(Comment, idx=cid)
+    user = request.user
+    profile = Profile.objects.get(user=user)
+
+    check_like_post = profile.user_likelist.filter(idx=post)
+
+    if check_like_post.exists():
+        profile.user_likelist.remove(post)
+        cdto.rating -= 1
+        cdto.save()
     else:
-        cdto.rate_down()
-    cdto.rating = cdto.ratings_up - cdto.ratings_down
-    cdto.save()
+        profile.user_likelist.add(post)
+        cdto.rating += 1
+        cdto.save()
+
+    # if rate == '1':
+    #     cdto.rate_up()
+    # else:
+    #     cdto.rate_down()
+    # cdto.rating = cdto.ratings_up - cdto.ratings_down
+    # cdto.save()
+
     return HttpResponseRedirect("detail?idx="+id+"&username="+username+"&is_authenticated="+is_authenticated)
 
 @csrf_exempt
@@ -322,6 +348,7 @@ def evidence_insert(request):
     dto = Board.objects.get(idx=id)
     dto.hit_up()
     dto.save()
+
     filesize = "%.2f" % (dto.filesize / 1024)
 
     try:
