@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect, render_to_response
-from MECboard.models import Board, Comment
+from django.shortcuts import render, redirect, render_to_response, get_object_or_404
+from MECboard.models import Board, Comment,Profile
 import os
 import math
 from django.views.decorators.csrf import csrf_exempt
@@ -8,7 +8,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.db.models import Q
 from MECboard.forms import UserForm, LoginForm
 from django.contrib.auth.models import User
-from django.contrib.auth import (authenticate, login as django_login, logout as django_logout, )
+from django.contrib.auth import (authenticate ,login as django_login, logout as django_logout, )
+from django.contrib.auth import get_user_model
+from .forms import ProfileForm
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 UPLOAD_DIR = "C:/Users/sehwa/PycharmProjects/mec/MECboard/media/images"
 login_failure = False
@@ -344,6 +347,7 @@ def join(request):
         form = UserForm(request.POST)
         if form.is_valid():
             new_user = User.objects.create_user(**form.cleaned_data)
+            Profile.objects.create(user=user)
             django_login(request, new_user)
             return redirect("/")
         else:
@@ -371,3 +375,38 @@ def login_check(request):
     else:
         form = LoginForm()
     return render(request, "login.html", {"form":form, "msg":"no error"})
+
+
+class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def save_user(self, request, sociallogin, form=None):
+
+        user = super(SocialAccountAdapter, self).save_user(request, sociallogin, form)
+
+        social_app_name = sociallogin.account.provider.upper()
+
+        if social_app_name == "FACEBOOK":
+            User.objects.get_or_create_facebook_user(user_pk=user.pk, extra_data=extra_data)
+
+        elif social_app_name == "KAKAO":
+            User.objects.get_or_create_kakao_user(user_pk=user.pk, extra_data=extra_data)
+
+        elif social_app_name == "GOOGLE":
+            User.objects.get_or_create_google_user(user_pk=user.pk, extra_data=extra_data)
+
+
+def profile_update(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if profile_form.is_valid():
+            profile_form.save()
+        return redirect('accounts:people', request.user.username)
+    else:
+        profile_form = ProfileForm(instance=profile)
+    return render(request, 'accounts/profile_update.html', {
+        'profile_form': profile_form
+    })
+
+def people(request, username):
+    people = get_object_or_404(get_user_model(), username = username)
+    return render(request, 'accounts/people.html', {'people':people})

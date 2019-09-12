@@ -1,10 +1,11 @@
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
+from django.contrib.auth.models import UserManager as DefaultUserManager
 from django import forms
 from MEC import settings
-from imagekit.models import ImageSpecField
-from imagekit.processors import Thumbnail
+from imagekit.models import ImageSpecField,ProcessedImageField
+from imagekit.processors import Thumbnail,ResizeToFill
 
 class Board(models.Model):
     idx = models.AutoField(primary_key=True)
@@ -64,5 +65,49 @@ class UserForm(forms.ModelForm):
 
 class Profile(models.Model):
     user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,)
-    nickname = models.CharField(max_length=64)
-    profile_photo = models.ImageField(blank=True)
+    nickname = models.CharField(max_length=64, blank=True)
+    introduction = models.TextField(blank=True)
+    profile_photo = ProcessedImageField(
+    		blank = True,
+        	upload_to = 'profile/images',
+        	processors = [ResizeToFill(300, 300)],
+        	format = 'JPEG',
+        	options = {'quality':90},
+    		)
+
+
+class UserManager(DefaultUserManager): #custom userInfo
+
+    def get_or_create_facebook_user(self, user_pk, extra_data):
+        user = User.objects.get(pk=user_pk)
+        user.user_type = "F"
+        user.profile_image = extra_data['profile_image']
+        user.save()
+
+        return user
+
+    def get_or_create_kakao_user(self, user_pk, extra_data):
+        user = User.objects.get(pk=user_pk)
+        user.username = extra_data['name']
+        user.nickname = extra_data['nickname']
+        user.email = extra_data['email']
+        user.first_name = extra_data['name'][0]
+        user.last_name = extra_data['name'][1:]
+        user.profile_image = extra_data['profile_image']
+        user.user_type = "N"
+        user.save()
+
+        return user
+
+    def get_or_create_google_user(self, user_pk, extra_data):
+        user = User.objects.get(pk=user_pk)
+        user.username = extra_data['name']
+        user.nickname = extra_data['nickname']
+        user.email = extra_data['email']
+        user.first_name = extra_data['name'][0]
+        user.last_name = extra_data['name'][1:]
+        user.profile_image = extra_data['profile_image']
+        user.user_type = "N"
+        user.save()
+
+        return user

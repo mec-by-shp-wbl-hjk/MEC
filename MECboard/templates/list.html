@@ -26,7 +26,8 @@ if ("{{login_failed}}" == "True")
 </script>
 <h2><a href="/">게시판</a></h2>
 {% if is_authenticated %}
-	안녕하십니까 {{username}}님<br>
+	안녕하십니까 <br>
+    <a href="/people/{{username}}">{{username}}님</a>
 	<a href="/accounts/logout">로그아웃</a>
 {% else %}
 	안녕하십니까 {{username}}님<br>
