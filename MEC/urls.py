@@ -15,6 +15,8 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('login/', views.login_check, name='login'),
     path('logout/', views.logout, name='logout'),
+    path('people/<str:username>/', views.people, name='people'),
+    path('profile/', views.profile_update, name='profile_update'),
     path('write', views.write),
     path('insert', views.insert),
     path('download', views.download),
